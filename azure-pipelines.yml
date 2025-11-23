@@ -1,0 +1,132 @@
+# My Pipeline
+
+trigger: 
+  branches:
+    include:
+      - main
+      - feature/*
+
+stages:
+  - stage: A
+    pool: MyAgentPool
+    displayName: Build
+    jobs:
+      - job: 
+        displayName: Terraform_Init_Validate_Fmt_Plan
+        steps:
+        - task: TerraformTask@5
+          displayName: Terraform_Init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            backendServiceArm: 'Sumit_service_connection'
+            backendAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
+            backendAzureRmResourceGroupName: 'sumuttestrg'
+            backendAzureRmStorageAccountName: 'mycooolstorage'
+            backendAzureRmContainerName: 'tfstate'
+            backendAzureRmKey: 'terraform.tfstate'
+
+        - task: TerraformTask@5
+          displayName: Terraform_Validate
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+
+        - task: TerraformTask@5
+          displayName: Terraform_Fmt
+          inputs:
+            provider: 'azurerm'
+            command: 'custom'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            outputTo: 'console'
+            customCommand: 'fmt'
+            environmentServiceNameAzureRM: 'Sumit_service_connection'
+            environmentAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
+
+        - task: TerraformTask@5
+          displayName: Terraform_Plan
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            environmentServiceNameAzureRM: 'Sumit_service_connection'
+            environmentAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
+
+  - stage: B
+    dependsOn: A
+    pool: MyAgentPool
+    displayName: Scanning
+    jobs:
+      - job: 
+        displayName: Tf_Scan
+        steps:
+        - task: tfsec@1
+          displayName: tf_scanning
+          inputs:
+            version: 'v1.26.0'
+            dir: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+
+  - stage: C
+    dependsOn: B
+    pool: server
+    displayName: Manual_Validation
+    jobs:
+      - job: 
+        displayName: Manual_Validation
+        steps:
+        - task: ManualValidation@1
+          displayName: Valdate
+          inputs:
+            notifyUsers: 'sumitvats08@omkarsingh88422gmail.onmicrosoft.com'
+            approvers: 'sumitvats08@omkarsingh88422gmail.onmicrosoft.com'
+
+  - stage: D
+    dependsOn: C
+    pool: MyAgentPool
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    displayName: Final_Infra_Ready
+    jobs:
+      - job:
+        displayName: Terraform_Init_Apply
+        steps:
+        - task: TerraformTask@5
+          displayName: Terraform_Init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            backendServiceArm: 'Sumit_service_connection'
+            backendAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
+            backendAzureRmResourceGroupName: 'sumuttestrg'
+            backendAzureRmStorageAccountName: 'mycooolstorage'
+            backendAzureRmContainerName: 'tfstate'
+            backendAzureRmKey: 'terraform.tfstate'
+
+        - task: TerraformTask@5
+          displayName: Terraform_Apply
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            commandOptions: '--auto-approve'
+            environmentServiceNameAzureRM: 'Sumit_service_connection'
+            environmentAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
+
+  - stage: E
+    pool: MyAgentPool
+    dependsOn: D
+    displayName: Infra_Delete
+    jobs:
+      - job: 
+        displayName: Terraform_Destroy
+        steps:
+        - task: TerraformTask@5
+          displayName: Terraform_Destroy
+          inputs:
+            provider: 'azurerm'
+            command: 'destroy'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/Dev'
+            environmentServiceNameAzureRM: 'Sumit_service_connection'
+            environmentAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
