@@ -123,6 +123,18 @@ stages:
         displayName: Terraform_Destroy
         steps:
         - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
+            backendServiceArm: 'Sumit_service_connection'
+            backendAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
+            backendAzureRmResourceGroupName: 'sumuttestrg'
+            backendAzureRmStorageAccountName: 'mycooolstorage'
+            backendAzureRmContainerName: 'tfstate'
+            backendAzureRmKey: 'terraform.tfstate'
+        
+        - task: TerraformTask@5
           displayName: Terraform_Destroy
           inputs:
             provider: 'azurerm'
