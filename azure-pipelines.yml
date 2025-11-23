@@ -19,7 +19,7 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'init'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
             backendServiceArm: 'Sumit_service_connection'
             backendAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
             backendAzureRmResourceGroupName: 'sumuttestrg'
@@ -32,14 +32,14 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'validate'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
 
         - task: TerraformTask@5
           displayName: Terraform_Fmt
           inputs:
             provider: 'azurerm'
             command: 'custom'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
             outputTo: 'console'
             customCommand: 'fmt'
             environmentServiceNameAzureRM: 'Sumit_service_connection'
@@ -50,7 +50,7 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'plan'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
             environmentServiceNameAzureRM: 'Sumit_service_connection'
             environmentAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
 
@@ -66,7 +66,7 @@ stages:
           displayName: tf_scanning
           inputs:
             version: 'v1.26.0'
-            dir: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            dir: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
 
   - stage: C
     dependsOn: B
@@ -96,7 +96,7 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'init'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
             backendServiceArm: 'Sumit_service_connection'
             backendAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
             backendAzureRmResourceGroupName: 'sumuttestrg'
@@ -109,7 +109,7 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'apply'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
             commandOptions: '--auto-approve'
             environmentServiceNameAzureRM: 'Sumit_service_connection'
             environmentAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
@@ -127,6 +127,6 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'destroy'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/Dev'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Infra_Terraform/Environment/Dev'
             environmentServiceNameAzureRM: 'Sumit_service_connection'
             environmentAzureRmOverrideSubscriptionID: '6e65d60a-bc12-4f70-8dcd-6cdb4da48e3e'
