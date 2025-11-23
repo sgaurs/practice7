@@ -25,3 +25,5 @@ module "nic-vm_call" {
 output "public_ip_addresses" {
   value = module.pip_call.public_ip_addresses
 }
+
+#
