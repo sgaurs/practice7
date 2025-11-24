@@ -6,6 +6,12 @@ trigger:
       - main
       - feature/*
 
+pr:
+  branches:
+    include:
+      - main
+      - feature/*
+
 stages:
   - stage: A
     pool: MyAgentPool
