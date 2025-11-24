@@ -26,6 +26,10 @@ output "public_ip_addresses" {
   value = module.pip_call.public_ip_addresses
 }
 
-# output "public_ip_addresses" {
+# output "public_ip_addresses1" {
+#   value = module.pip_call.public_ip_addresses
+# }
+
+# output "public_ip_addresses2" {
 #   value = module.pip_call.public_ip_addresses
 # }
